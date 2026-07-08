@@ -1,1 +1,255 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retirement Calculator</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --background: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --success: #16a34a;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.5;
+            padding: 2rem 1rem;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        p.subtitle {
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-prefix, .input-suffix {
+            position: absolute;
+            color: var(--text-light);
+            font-size: 0.95rem;
+            pointer-events: none;
+        }
+
+        .input-prefix { left: 12px; }
+        .input-suffix { right: 12px; }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input.has-prefix { padding-left: 2rem; }
+        input.has-suffix { padding-right: 2rem; }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .results {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid var(--border);
+            display: none;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+
+        .result-row.total {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--success);
+            margin-top: 1rem;
+            padding-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Retirement Calculator</h1>
+    <p class="subtitle">Find out the total portfolio size you need today to sustain your ideal retirement. (Assumes a 3% inflation rate).</p>
+    
+    <form id="calc-form">
+        <div class="form-group">
+            <label for="expenses">Desired Annual Expenses</label>
+            <div class="input-wrapper">
+                <span class="input-prefix">$</span>
+                <input type="number" id="expenses" class="has-prefix" placeholder="e.g., 60000" required min="0">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="savings">Current Savings Total</label>
+            <div class="input-wrapper">
+                <span class="input-prefix">$</span>
+                <input type="number" id="savings" class="has-prefix" placeholder="e.g., 50000" required min="0">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="investments">Current Investments Total</label>
+            <div class="input-wrapper">
+                <span class="input-prefix">$</span>
+                <input type="number" id="investments" class="has-prefix" placeholder="e.g., 150000" required min="0">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="roi">Expected Return on Investment (ROI) Per Annum</label>
+            <div class="input-wrapper">
+                <input type="number" id="roi" class="has-suffix" placeholder="e.g., 7" step="0.1" required min="0">
+                <span class="input-suffix">%</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="years">Number of Years Until Death (Time Horizon)</label>
+            <div class="input-wrapper">
+                <input type="number" id="years" placeholder="e.g., 40" required min="1">
+            </div>
+        </div>
+
+        <button type="submit">Calculate Required Portfolio</button>
+    </form>
+
+    <div id="results-box" class="results">
+        <div class="result-row">
+            <span>Current Net Worth (Savings + Investments):</span>
+            <span id="current-net-worth">$0</span>
+        </div>
+        <div class="result-row">
+            <span>Total Portfolio Needed Today:</span>
+            <span id="portfolio-needed">$0</span>
+        </div>
+        <div class="result-row total">
+            <span>Net Shortfall / Surplus:</span>
+            <span id="shortfall">$0</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('calc-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // 1. Get input values
+        const expenses = parseFloat(document.getElementById('expenses').value);
+        const savings = parseFloat(document.getElementById('savings').value);
+        const investments = parseFloat(document.getElementById('investments').value);
+        const nominalRoi = parseFloat(document.getElementById('roi').value) / 100;
+        const years = parseInt(document.getElementById('years').value);
+
+        // 2. Constants & Calculations
+        const inflation = 0.03; // Assumed 3% standard inflation
+        
+        // Calculate the Real Rate of Return (Fisher Equation)
+        // Real Rate = ((1 + Nominal ROI) / (1 + Inflation)) - 1
+        const realRoi = ((1 + nominalRoi) / (1 + inflation)) - 1;
+
+        // Calculate present value of the retirement annuity required today
+        let targetPortfolio = 0;
+        if (realRoi === 0) {
+            targetPortfolio = expenses * years;
+        } else {
+            targetPortfolio = expenses * ((1 - Math.pow(1 + realRoi, -years)) / realRoi);
+        }
+
+        const currentNetWorth = savings + investments;
+        const netDifference = currentNetWorth - targetPortfolio;
+
+        // 3. Format Currency function
+        const formatCurrency = (val) => {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
+        };
+
+        // 4. Render Results
+        document.getElementById('current-net-worth').innerText = formatCurrency(currentNetWorth);
+        document.getElementById('portfolio-needed').innerText = formatCurrency(targetPortfolio);
+        
+        const shortfallEl = document.getElementById('shortfall');
+        if (netDifference >= 0) {
+            shortfallEl.innerText = `+${formatCurrency(netDifference)} (Surplus 🎉)`;
+            shortfallEl.style.color = 'var(--success)';
+        } else {
+            shortfallEl.innerText = `${formatCurrency(netDifference)} (Shortfall)`;
+            shortfallEl.style.color = '#dc2626'; // Red
+        }
+
+        // Show results container
+        document.getElementById('results-box').style.display = 'block';
+    });
+</script>
+
+</body>
+</html>
